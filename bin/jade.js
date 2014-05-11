@@ -94,12 +94,22 @@ if (files.length) {
   console.log();
   files.forEach(renderFile);
   if (options.watch) {
-    monocle.watchFiles({
-      files: files,
-      listener: function(file) {
-        renderFile(file.absolutePath);
-      }
-    });
+    if (files.length === 1 && !/\.jade$/.test(files[0])) {
+      var root = files[0]
+      monocle.watchDirectory({
+        root: root,
+        listener: function(file) {
+          renderFile(file.absolutePath, root);
+        }
+      });
+    } else {
+      monocle.watchFiles({
+        files: files,
+        listener: function(file) {
+          renderFile(file.absolutePath);
+        }
+      });
+    }
   }
   process.on('exit', function () {
     console.log();
