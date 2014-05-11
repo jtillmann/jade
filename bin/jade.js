@@ -7,7 +7,6 @@
 var fs = require('fs')
   , program = require('commander')
   , path = require('path')
-  , basename = path.basename
   , dirname = path.dirname
   , resolve = path.resolve
   , exists = fs.existsSync || path.existsSync
@@ -128,7 +127,7 @@ function stdin() {
     }
     process.stdout.write(output);
   }).resume();
-  
+
   process.on('SIGINT', function() {
     process.stdout.write('\n');
     process.stdin.emit('end');
@@ -142,7 +141,8 @@ function stdin() {
  * Always walk the subdirectories.
  */
 
-function renderFile(path) {
+function renderFile(path, root) {
+  root = root || path;
   var re = /\.jade$/;
   fs.lstat(path, function(err, stat) {
     if (err) throw err;
@@ -154,7 +154,8 @@ function renderFile(path) {
         var fn = options.client ? jade.compileClient(str, options) : jade.compile(str, options);
         var extname = options.client ? '.js' : '.html';
         path = path.replace(re, extname);
-        if (program.out) path = join(program.out, basename(path));
+        var basename = path.substr(root.length)
+        if (program.out) path = join(program.out, basename);
         var dir = resolve(dirname(path));
         mkdirp(dir, 0755, function(err){
           if (err) throw err;
@@ -179,7 +180,9 @@ function renderFile(path) {
         if (err) throw err;
         files.map(function(filename) {
           return path + '/' + filename;
-        }).forEach(renderFile);
+        }).forEach(function(path){
+          renderFile(path, root)
+        });
       });
     }
   });
