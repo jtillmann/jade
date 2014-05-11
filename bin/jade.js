@@ -95,11 +95,11 @@ if (files.length) {
   files.forEach(renderFile);
   if (options.watch) {
     if (files.length === 1 && !/\.jade$/.test(files[0])) {
-      var root = files[0]
+      var root = files[0];
       monocle.watchDirectory({
         root: root,
         listener: function(file) {
-          renderFile(file.absolutePath, root);
+          renderFile(root + file.path, root);
         }
       });
     } else {
