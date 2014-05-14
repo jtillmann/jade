@@ -99,7 +99,8 @@ if (files.length) {
       monocle.watchDirectory({
         root: root,
         listener: function(file) {
-          renderFile(root + file.path, root);
+          var pwd = process.env.PWD + "/"
+          renderFile(path.relative(pwd, file.absolutePath), root);
         }
       });
     } else {
